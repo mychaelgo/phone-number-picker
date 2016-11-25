@@ -10,13 +10,13 @@
 import UIKit
 
 public protocol PhoneNumberViewControllerDelegate {
-    func phoneNumberViewController(phoneNumberViewController: PhoneNumberViewController, didEnterPhoneNumber phoneNumber: String)
-    func phoneNumberViewControllerDidCancel(phoneNumberViewController: PhoneNumberViewController)
+    func phoneNumberViewController(_ phoneNumberViewController: PhoneNumberViewController, didEnterPhoneNumber phoneNumber: String)
+    func phoneNumberViewControllerDidCancel(_ phoneNumberViewController: PhoneNumberViewController)
 }
 
 public final class PhoneNumberViewController: UIViewController, CountriesViewControllerDelegate {
     public class func standardController() -> PhoneNumberViewController {
-        return UIStoryboard(name: "PhoneNumberPicker", bundle: nil).instantiateViewControllerWithIdentifier("PhoneNumber") as! PhoneNumberViewController
+        return UIStoryboard(name: "PhoneNumberPicker", bundle: nil).instantiateViewController(withIdentifier: "PhoneNumber") as! PhoneNumberViewController
     }
     
     @IBOutlet weak public var countryButton: UIButton!
@@ -29,13 +29,13 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
     public var cancelBarButtonItemHidden = false { didSet { setupCancelButton() } }
     public var doneBarButtonItemHidden = false { didSet { setupDoneButton() } }
     
-    private func setupCancelButton() {
+    fileprivate func setupCancelButton() {
         if let cancelBarButtonItem = cancelBarButtonItem {
             navigationItem.leftBarButtonItem = cancelBarButtonItemHidden ? nil: cancelBarButtonItem
         }
     }
     
-    private func setupDoneButton() {
+    fileprivate func setupDoneButton() {
         if let doneBarButtonItem = doneBarButtonItem {
             navigationItem.rightBarButtonItem = doneBarButtonItemHidden ? nil: doneBarButtonItem
         }
@@ -46,7 +46,7 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
     public var delegate: PhoneNumberViewControllerDelegate?
     
     public var phoneNumber: String? {
-        if let countryText = countryTextField.text, phoneNumberText = phoneNumberTextField.text where !countryText.isEmpty && !phoneNumberText.isEmpty {
+        if let countryText = countryTextField.text, let phoneNumberText = phoneNumberTextField.text , !countryText.isEmpty && !phoneNumberText.isEmpty {
             return countryText + phoneNumberText
         }
         return nil
@@ -66,7 +66,7 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
         phoneNumberTextField.becomeFirstResponder()
     }
     
-    @IBAction private func changeCountry(sender: UIButton) {
+    @IBAction fileprivate func changeCountry(_ sender: UIButton) {
         let countriesViewController = CountriesViewController.standardController()
         countriesViewController.delegate = self
         countriesViewController.cancelBarButtonItemHidden = true
@@ -77,33 +77,33 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
         navigationController?.pushViewController(countriesViewController, animated: true)
     }
     
-    public func countriesViewControllerDidCancel(countriesViewController: CountriesViewController) { }
+    public func countriesViewControllerDidCancel(_ countriesViewController: CountriesViewController) { }
     
-    public func countriesViewController(countriesViewController: CountriesViewController, didSelectCountry country: Country) {
-        navigationController?.popViewControllerAnimated(true)
+    public func countriesViewController(_ countriesViewController: CountriesViewController, didSelectCountry country: Country) {
+        _ = navigationController?.popViewController(animated: true)
         self.country = country
         updateCountry()
     }
     
-    @IBAction private func textFieldDidChangeText(sender: UITextField) {
-        if let countryText = sender.text where sender == countryTextField {
+    @IBAction fileprivate func textFieldDidChangeText(_ sender: UITextField) {
+        if let countryText = sender.text , sender == countryTextField {
             country = Countries.countryFromPhoneExtension(countryText)
         }
         updateTitle()
     }
     
-    private func updateCountry() {
+    fileprivate func updateCountry() {
         countryTextField.text = country.phoneExtension
         updateCountryTextField()
         updateTitle()
     }
     
-    private func updateTitle() {
+    fileprivate func updateTitle() {
         updateCountryTextField()
         if countryTextField.text == "+" {
-            countryButton.setTitle("Select From List", forState: .Normal)
+            countryButton.setTitle("Select From List", for: UIControlState())
         } else {
-            countryButton.setTitle(country.name, forState: .Normal)
+            countryButton.setTitle(country.name, for: UIControlState())
         }
         
         var title = "Your Phone Number"
@@ -115,16 +115,16 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
         validate()
     }
     
-    private func updateCountryTextField() {
+    fileprivate func updateCountryTextField() {
         if countryTextField.text == "+" {
             countryTextField.text = ""
         }
-        else if let countryText = countryTextField.text where !countryText.hasPrefix("+") && !countryText.isEmpty {
+        else if let countryText = countryTextField.text , !countryText.hasPrefix("+") && !countryText.isEmpty {
             countryTextField.text = "+" + countryText
         }
     }
     
-    @IBAction private func done(sender: UIBarButtonItem) {
+    @IBAction fileprivate func done(_ sender: UIBarButtonItem) {
         if !countryIsValid || !phoneNumberIsValid {
             return
         }
@@ -133,11 +133,11 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
         }
     }
     
-    @IBAction private func cancel(sender: UIBarButtonItem) {
+    @IBAction fileprivate func cancel(_ sender: UIBarButtonItem) {
         delegate?.phoneNumberViewControllerDidCancel(self)
     }
     
-    @IBAction private func tappedBackground(sender: UITapGestureRecognizer) {
+    @IBAction fileprivate func tappedBackground(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
     
@@ -156,11 +156,11 @@ public final class PhoneNumberViewController: UIViewController, CountriesViewCon
         return false
     }
     
-    private func validate() {
+    fileprivate func validate() {
         let validCountry = countryIsValid
         let validPhoneNumber = phoneNumberIsValid
         
-        doneBarButtonItem.enabled = validCountry && validPhoneNumber
+        doneBarButtonItem.isEnabled = validCountry && validPhoneNumber
     }
 }
 

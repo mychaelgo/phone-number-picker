@@ -8,8 +8,8 @@
 
 import Foundation
 
-public class Countries {
-    public private(set) static var countries: [Country] = {
+open class Countries {
+    open fileprivate(set) static var countries: [Country] = {
         var countries: [Country] = []
         
         countries.append(Country(countryCode: "AF", phoneExtension: "93", isMain: true))
@@ -283,8 +283,8 @@ public class Countries {
         return countries
         }()
     
-    public class func countryFromPhoneExtension(phoneExtension: String) -> Country {
-        let phoneExtension = (phoneExtension as NSString).stringByReplacingOccurrencesOfString("+", withString: "")
+    open class func countryFromPhoneExtension(_ phoneExtension: String) -> Country {
+        let phoneExtension = (phoneExtension as NSString).replacingOccurrences(of: "+", with: "")
         for country in countries {
             if country.isMain && phoneExtension == country.phoneExtension {
                 return country
@@ -293,7 +293,7 @@ public class Countries {
         return Country.emptyCountry
     }
     
-    public class func countryFromCountryCode(countryCode: String) -> Country {
+    open class func countryFromCountryCode(_ countryCode: String) -> Country {
         for country in countries {
             if countryCode == country.countryCode {
                 return country
@@ -302,7 +302,7 @@ public class Countries {
         return Country.emptyCountry
     }
     
-    public class func countriesFromCountryCodes(countryCodes: [String]) -> [Country] {
+    open class func countriesFromCountryCodes(_ countryCodes: [String]) -> [Country] {
         return countryCodes.map { Countries.countryFromCountryCode($0) }
     }
 }
